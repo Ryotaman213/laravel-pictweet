@@ -3,37 +3,43 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Http\Requests\LoginRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
-    use AuthenticatesUsers;
-
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/';
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function create(): View
     {
-        $this->middleware('guest')->except('logout');
+        return view('auth.login');
+    }
+
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $credentials = $request->validated();
+
+        if (! Auth::attempt(
+            ['email' => $credentials['email'], 'password' => $credentials['password']],
+            $request->boolean('remember')
+        )) {
+            return back()
+                ->withErrors(['email' => __('auth.failed')])
+                ->onlyInput('email');
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('tweets.index'));
+    }
+
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('tweets.index');
     }
 }

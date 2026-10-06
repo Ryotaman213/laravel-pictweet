@@ -2,26 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Tweet;
 use App\User;
+use Illuminate\Contracts\View\View;
 
 class UsersController extends Controller
 {
-    public function __construct()
+    public function show(User $user): View
     {
-        $this->middleware('auth');
-    }
+        $tweets = $user->tweets()
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->paginate(5);
+        $nickname = $user->nickname;
 
-    public function show($id) {
-      $user = User::find($id);
-      $nickname = $user->nickname;
-      $tweets = Tweet::query()->with('user')->where('user_id', $user->id )->orderBy("created_at", "DESC")->paginate(5);
-
-      return view('users.show', [
-        'tweets' => $tweets,
-        'nickname' => $nickname,
-      ]);
+        return view('users.show', compact('tweets', 'nickname'));
     }
 }

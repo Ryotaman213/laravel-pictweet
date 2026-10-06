@@ -14,28 +14,29 @@
   <header class="header">
     <div class="header__bar row">
       <h1 class="grid-6"><a href="/">Laravel PicTweet</a></h1>
-      @if(Auth::check())
-      @csrf
+      @auth
         <div class="user_nav grid-6">
-          <span>{{ Auth::user()->nickname }}
+          <span>{{ auth()->user()->nickname }}
             <ul class="user__info">
               <li>
-                <a href="/users/{{ Auth::id() }}">マイページ</a>
-        <form action="/logout" method="POST">
-            @csrf
-        <a href="javascript:void(0)" onclick="this.parentNode.submit()">ログアウト</a>
-        </li>
+                <a href="{{ route('users.show', auth()->id()) }}">マイページ</a>
+              </li>
+              <li>
+                <form action="{{ route('logout') }}" method="POST">
+                  @csrf
+                  <button type="submit" class="post">ログアウト</button>
+                </form>
+              </li>
             </ul>
           </span>
-          <a class="post" href="/tweets/create">投稿する</a>
+          <a class="post" href="{{ route('tweets.create') }}">投稿する</a>
         </div>
-        </form>
       @else
         <div class="grid-6">
-          <a class="post" href="/login">ログイン</a>
-          <a class="post" href="/register">新規登録</a>
+          <a class="post" href="{{ route('login') }}">ログイン</a>
+          <a class="post" href="{{ route('register') }}">新規登録</a>
         </div>
-      @endif
+      @endauth
     </div>
   </header>
         @yield('content')

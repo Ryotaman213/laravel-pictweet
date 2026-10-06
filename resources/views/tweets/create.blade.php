@@ -7,8 +7,14 @@
     <h3>
       投稿する
     </h3>
-    <input placeholder="Image Url" type="text" name="image">
-    <textarea cols="30" name="text" placeholder="text" rows="10"></textarea>
+    <input placeholder="Image Url" type="url" name="image" value="{{ old('image') }}">
+    @error('image')
+      <p class="validation-error" role="alert">{{ $message }}</p>
+    @enderror
+    <textarea cols="30" name="text" placeholder="text" rows="10">{{ old('text') }}</textarea>
+    @error('text')
+      <p class="validation-error" role="alert">{{ $message }}</p>
+    @enderror
     <input type="submit" value="SENT">
     </form>
   </div>
