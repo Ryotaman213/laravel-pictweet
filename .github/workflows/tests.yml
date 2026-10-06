@@ -42,7 +42,8 @@ jobs:
         run: cp .env.example .env
 
       - name: Verify fresh SQLite migrations
-        run: DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan migrate --force
+        run: |
+          DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan migrate --force
 
       - name: Run feature and unit tests
         run: php artisan test
