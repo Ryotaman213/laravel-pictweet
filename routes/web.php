@@ -1,26 +1,47 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\CommentsController;
+use App\Http\Controllers\TweetsController;
+use App\Http\Controllers\UsersController;
+use Illuminate\Support\Facades\Route;
 
-Auth::routes();
+Route::get('/', [TweetsController::class, 'index'])->name('home');
+Route::resource('tweets', TweetsController::class)
+    ->only(['create', 'store', 'edit', 'update', 'destroy'])
+    ->middleware('auth');
+Route::resource('tweets', TweetsController::class)->only(['index', 'show']);
 
-Route::get('/', 'TweetsController@index');
+Route::resource('users', UsersController::class)
+    ->only(['show'])
+    ->middleware('auth');
 
-Route::resource('tweets', 'TweetsController');
+Route::resource('comments', CommentsController::class)
+    ->only(['store'])
+    ->middleware('auth');
 
-Route::resource('users', 'UsersController')->only([
-  'show'
-]);
+Route::middleware('guest')->group(function (): void {
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:login');
 
-Route::resource('comments', 'CommentsController')->only([
-  'store'
-]);
+    Route::get('/register', [RegisterController::class, 'create'])->name('register');
+    Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:30,1');
+
+    Route::get('/password/reset', [ForgotPasswordController::class, 'create'])
+        ->name('password.request');
+    Route::post('/password/email', [ForgotPasswordController::class, 'store'])
+        ->middleware('throttle:password-reset')
+        ->name('password.email');
+    Route::get('/password/reset/{token}', [ResetPasswordController::class, 'create'])
+        ->name('password.reset');
+    Route::post('/password/reset', [ResetPasswordController::class, 'store'])
+        ->middleware('throttle:password-reset')
+        ->name('password.update');
+});
+
+Route::post('/logout', [LoginController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');

@@ -1,0 +1,58 @@
+name: Laravel 13 tests
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'upgrade/**'
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php: ['8.3', '8.4']
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, dom, mbstring, pdo_mysql, pdo_sqlite, sqlite3, xml, zip
+          coverage: none
+
+      - name: Validate Composer manifests
+        run: composer validate --strict
+
+      - name: Install locked dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Prepare local environment
+        run: cp .env.example .env
+
+      - name: Verify fresh SQLite migrations
+        run: DB_CONNECTION=sqlite DB_DATABASE=:memory: php artisan migrate --force
+
+      - name: Run feature and unit tests
+        run: php artisan test
+
+      - name: Check route and view caches
+        run: |
+          php artisan route:cache
+          php artisan view:cache
+          php artisan route:clear
+          php artisan view:clear
+
+      - name: Audit locked Composer dependencies
+        run: composer audit --locked

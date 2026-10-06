@@ -2,11 +2,8 @@
 @section('content')
   <div class="contents row" >
     <p>{{ $nickname }}さんの投稿一覧</p>
-    @foreach($tweets as $tweet)
-      <div class="content_post" style="background-image: url( {{ $tweet->image }} );">
-        {{ $tweet->text }}
-        <span class="name">{{ $tweet->user->nickname }}</span>
-      </div>
+    @foreach ($tweets as $tweet)
+      @include('tweets.partials.card', ['tweet' => $tweet, 'showDetails' => false, 'showActions' => false])
     @endforeach
     {{ $tweets->links() }}
   </div>

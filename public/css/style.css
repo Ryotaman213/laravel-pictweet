@@ -5,7 +5,7 @@
  * http://ipafont.ipa.go.jp/（IPAフォントのURL）
  * http://ipafont.ipa.go.jp/ipa_font_license_v1.html（IPAフォントライセンスv1.0のURL）
  */
-@import url(http://fonts.googleapis.com/css?family=Unica+One);
+@import url(https://fonts.googleapis.com/css?family=Unica+One);
 @font-face {
   font-family: "ほのか明朝";
   src: url("font_1_honokamin.ttf") format("truetype");
@@ -196,8 +196,18 @@ div.contents.row div.content_post {
   color: #fff;
   background-size: cover;
   background-position: center center;
+  background-color: #aaa;
   border-radius: 3px;
   box-shadow: 0 0 10px rgba(41, 41, 41, 0.2);
+}
+div.contents.row div.content_post > img.content_post__image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 3px;
 }
 div.contents.row div.content_post:after {
   content: "";
@@ -245,6 +255,21 @@ div.contents.row div.content_post .more ul.more_list li a {
   padding: 5px;
 }
 div.contents.row div.content_post .more ul.more_list li a:hover {
+  background-color: #57C3E9;
+  color: #fff;
+}
+div.contents.row div.content_post .more ul.more_list li button.post {
+  display: block;
+  width: 100%;
+  padding: 5px;
+  border: 0;
+  background: transparent;
+  color: #666;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+div.contents.row div.content_post .more ul.more_list li button.post:hover {
   background-color: #57C3E9;
   color: #fff;
 }
@@ -304,6 +329,38 @@ form input, form textarea {
   border: 1px solid #D8D8D8;
   border-radius: 5px;
   font-family: "游ゴシック", "YuGothic";
+}
+form input[type=checkbox] {
+  width: auto;
+  margin-right: 8px;
+}
+form label {
+  display: block;
+  margin-top: 12px;
+}
+header.header .user_nav .user__info button.post {
+  width: 100%;
+  padding: 10px 20px;
+  border: 0;
+  background: transparent;
+  color: #666;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+header.header .user_nav .user__info button.post:hover {
+  background-color: #57C3E9;
+  color: #fff;
+}
+.validation-error {
+  color: #a00;
+  margin: 0 0 10px;
+}
+.form-status {
+  padding: 10px;
+  color: #245b2a;
+  background: #e7f4e8;
+  border-radius: 3px;
 }
 form input[type=submit] {
   background-color: #57C3E9;

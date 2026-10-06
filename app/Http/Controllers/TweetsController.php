@@ -2,76 +2,74 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreTweetRequest;
+use App\Http\Requests\UpdateTweetRequest;
 use App\Tweet;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 
 class TweetsController extends Controller
 {
-
-  public function __construct()
+    public function index(): View
     {
-            $this->middleware('auth')
-                 ->only(['create', 'store', 'edit', 'update', 'destroy']);
+        $tweets = Tweet::query()
+            ->with('user')
+            ->orderByDesc('id')
+            ->paginate(5);
+
+        return view('tweets.index', compact('tweets'));
     }
 
-    public function index() {
-      $tweets = Tweet::query()->with('user')->orderBy('id', 'DESC')->paginate(5);
-      return view('tweets.index', ['tweets' => $tweets]);
+    public function create(): View
+    {
+        return view('tweets.create');
     }
 
-    public function create() {
-      return view('tweets.create');
-    }
+    public function store(StoreTweetRequest $request): View
+    {
+        $data = $request->validated();
 
-    public function store(Request $request) {
-
-       $tweet = new Tweet;
-        $tweet->text = $request->text;
-        $tweet->image = $request->image;
-        $tweet->user_id = Auth::id();
-        $tweet->save();
+        $request->user()->tweets()->create([
+            'text' => $data['text'],
+            'image' => $data['image'] ?? '',
+        ]);
 
         return view('tweets.store');
     }
 
-    public function destroy($id){
-      $tweet = Tweet::find($id);
-      if ($tweet->user->id === Auth::id() ) {
+    public function edit(Tweet $tweet): View
+    {
+        $this->authorize('update', $tweet);
 
-        $tweet->delete();
-
-      return view('tweets.destroy');
-      }
+        return view('tweets.edit', compact('tweet'));
     }
 
-    public function edit($id) {
+    public function update(UpdateTweetRequest $request, Tweet $tweet): View
+    {
+        $this->authorize('update', $tweet);
 
-      $tweet = Tweet::findOrFail($id);
-      return view('tweets.edit', [
-        'tweet' => $tweet
-      ]);
-    }
-
-    public function update(Request $request, $id) {
-
-      $tweet = Tweet::findOrFail($id);
-      if ($tweet->user->id === Auth::id() ) {
-        $tweet->text = $request->text;
-        $tweet->image = $request->image;
-
-        $tweet->save();
+        $data = $request->validated();
+        $tweet->update([
+            'text' => $data['text'],
+            'image' => $data['image'] ?? '',
+        ]);
 
         return view('tweets.update');
-      }
     }
 
-    public function show($id) {
-      $tweet = Tweet::findOrFail($id);
-      $comments = $tweet->comments;
-      return view('tweets.show', [
-        'tweet' => $tweet,
-        'comments' => $comments,
-      ]);
+    public function destroy(Tweet $tweet): View
+    {
+        $this->authorize('delete', $tweet);
+        $tweet->delete();
+
+        return view('tweets.destroy');
+    }
+
+    public function show(Tweet $tweet): View
+    {
+        $tweet->load(['user', 'comments.user']);
+        $comments = $tweet->comments;
+
+        return view('tweets.show', compact('tweet', 'comments'));
     }
 }

@@ -2,32 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Tweet;
 use App\Comment;
+use App\Http\Requests\StoreCommentRequest;
+use App\Tweet;
+use Illuminate\Http\RedirectResponse;
 
 class CommentsController extends Controller
 {
-    public function __construct()
+    public function store(StoreCommentRequest $request): RedirectResponse
     {
-      $this->middleware('auth');
-    }
+        $data = $request->validated();
+        $tweet = Tweet::findOrFail($data['tweet_id']);
 
-    public function store(Request $request)
-    {
-      $tweet = Tweet::findOrFail($request->tweet_id);
-      $comments = $tweet->comments;
-      // var_dump($request->all());die;
-      Comment::create([
-          'text' => request('text'),
-          'tweet_id' => request('tweet_id'),
-          'user_id' => auth()->id()
-      ]);
+        $comment = new Comment(['text' => $data['text']]);
+        $comment->user()->associate($request->user());
+        $tweet->comments()->save($comment);
 
-        return redirect()->route('tweets.show', [
-          'comments' => $comments,
-          'tweet' => $tweet,
-        ]);
+        return redirect()->route('tweets.show', ['tweet' => $tweet->getKey()]);
     }
 }

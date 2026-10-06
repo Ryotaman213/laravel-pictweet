@@ -3,12 +3,14 @@
 namespace App;
 
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Database\Factories\UserFactory;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -39,11 +41,11 @@ class User extends Authenticatable
 
     public function tweets()
     {
-      return $this->hasMany('App\Tweet');
+        return $this->hasMany(Tweet::class);
     }
 
     public function comments()
     {
-      return $this->hasMany('App\Comment');
+        return $this->hasMany(Comment::class);
     }
 }

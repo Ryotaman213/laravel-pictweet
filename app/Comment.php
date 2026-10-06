@@ -2,22 +2,22 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-  protected $fillable = [
+    protected $fillable = [
         'text',
-        'tweet_id',
-        'user_id',
     ];
-    public function user()
+
+    public function user(): BelongsTo
     {
-      return $this->belongsTo('App\User');
+        return $this->belongsTo(User::class);
     }
 
-    public function tweet()
+    public function tweet(): BelongsTo
     {
-      return $this->belongsTo('App\Tweet');
+        return $this->belongsTo(Tweet::class);
     }
 }
